@@ -22,6 +22,7 @@ const artistlist = require('./apis/artistlist/artistlist');
 const artistbio = require('./apis/artistbio/artistbio');
 const artistreview = require('./apis/artistbio/artistreview');
 const user = require('./apis/user/user');
+const partner = require('./apis/partner/partnerbio');
 
 app.use('/home/artisttypes',artisttypes);
 app.use('/home/offers',offers);
@@ -29,5 +30,6 @@ app.use('/artistlist',artistlist);
 app.use('/artistbio',artistbio);
 app.use('/artistbio',artistreview);
 app.use('/user',user);
+app.use('/partner',partner);
 
 module.exports = app;

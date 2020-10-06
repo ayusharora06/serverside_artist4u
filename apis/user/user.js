@@ -3,10 +3,10 @@ const router = express.Router();
 const mongo = require('mongoose');
 const jwt = require('jsonwebtoken');
 
-const userchema = require('../../model/user');
+const userschema = require('../../model/user');
 
 router.post('/signup',(req,res,next)=>{
-	const user = new userchema({
+	const user = new userschema({
 		_id: new mongo.Types.ObjectId,
 		email:req.body.email,
 		phone:req.body.phone,
@@ -22,7 +22,7 @@ router.post('/signup',(req,res,next)=>{
 });
 
 router.post('/login/email',(req,res,next)=>{
-	userchema.find({email:req.body.email})
+	userschema.find({email:req.body.email})
 	.exec()
 	.then(users=>{
 		if(users.length<1){

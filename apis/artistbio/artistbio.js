@@ -4,6 +4,8 @@ const mongo = require('mongoose');
 const multer = require('multer');
 const fs = require('fs');
 const artisttype = require('../../model/artistbio');
+const checkAuth = require('../../middleware/check-auth');
+
 
 const storageidproof = multer.diskStorage({
 	destination:function(req, file, cb){
