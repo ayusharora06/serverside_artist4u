@@ -39,4 +39,15 @@ router.post(
 		});
 	}
 );
+
+router.get('/getartist',(req,res,next) => {
+	partnerschema.find({}).exec().then(result =>{
+		// console.log({message:result});
+		res.status(200).json({result:result});
+	}).catch(err => {
+		res.status(200).json(err);
+	});
+	// console.log('done');
+});
+
  module.exports=router
