@@ -6,7 +6,8 @@ const user = mongo.Schema({
 	email:{type:String, unique:true,required:true},
 	phone:{type:String, unique:true,required:true},
 	ispartner:{type:Boolean,default:false},
-	isartist:{type:Boolean,default:false},	
+	isartist:{type:Boolean,default:false},
+	otp:{type:String,required:true},
 });
 
 const myDB = mongo.connection.useDb('user');//db name

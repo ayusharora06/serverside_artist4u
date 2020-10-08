@@ -4,25 +4,39 @@ const mongo = require('mongoose');
 const jwt = require('jsonwebtoken');
 
 const userschema = require('../../model/user');
+const checkAuth = require('../../middleware/check-auth');
+const { json } = require('body-parser');
 
-router.post('/signup',(req,res,next)=>{
-	const user = new userschema({
+router.post('/signup',async (req,res,next)=>{
+	const user = await new userschema({
 		_id: new mongo.Types.ObjectId,
 		email:req.body.email,
 		phone:req.body.phone,
 	});
 	user.save().then(result=>{
-		console.log(result);
+		console.log('done')
+		const token=jwt.sign({
+			email:result['email'],
+			id:result['_id'],
+			phone:result['phone']
+		},
+		'key',
+		{
+			expiresIn:"4h"
+		}
+		);
+		console.log(token);
 		res.status(201).json({
-			message:"authenticated"
+			message:"authenticated",
+			token:token
 		});
 	}).catch(err =>{
 		res.status(500).json({err:err});
 	});
 });
 
-router.post('/login/email',(req,res,next)=>{
-	userschema.find({email:req.body.email})
+router.post('/login/email',async(req,res,next)=>{
+	await userschema.find({email:req.body.email})
 	.exec()
 	.then(users=>{
 		if(users.length<1){
@@ -47,5 +61,76 @@ router.post('/login/email',(req,res,next)=>{
 			res.status(500).json({err:err});
 	});
 });
+
+router.post(
+	'/updatephonenumber',
+	checkAuth,
+	async (req,res)=>{
+		await userschema.findByIdAndUpdate(req.data.id,{'phone':req.body.phone}).exec().then(result=>{
+			// console.log(result);
+			if(req.body.otp==result['otp']){
+				res.status(200).json({message:'updated'});
+			}else{
+				res.status(400).json({message:"invalid otp"});
+			}
+		}).catch(err =>{
+			res.status(200).json(err);
+		});
+	}
+);
+
+router.post(
+	'/updateemail',
+	checkAuth,
+	async (req,res)=>{
+		await userschema.findByIdAndUpdate(req.data.id,{'email':req.body.email}).exec().then(result=>{
+			// console.log(result);
+			if(req.body.otp==result['otp']){
+				res.status(200).json({message:'updated'});
+			}else{
+				res.status(400).json({message:"invalid otp"});
+			}
+		}).catch(err =>{
+			res.status(200).json(err);
+		});
+	}
+);
+
+router.post(
+	'/updatename',
+	checkAuth,
+	async (req,res)=>{
+		await userschema.findByIdAndUpdate(req.data.id,{'name':req.body.name}).exec().then(result=>{
+			// console.log(result);
+			if(req.body.otp==result['otp']){
+				res.status(200).json({message:'updated'});
+			}else{
+				res.status(400).json({message:"invalid otp"});
+			}
+		}).catch(err =>{
+			res.status(200).json(err);
+		});
+	}
+);
+
+function generateotp() {  
+	return Math.floor(
+		Math.random() * (999999 - 100000) + 100000
+	)
+}
+
+router.post(
+	'/otp',
+	checkAuth,
+	async (req,res)=>{
+		const otp=generateotp();
+		await userschema.findByIdAndUpdate(req.data.id,{'otp':otp}).exec().then(result=>{
+			// console.log(result);
+			res.status(200).json({message:'otp added'});
+		}).catch(err =>{
+			res.status(200).json(err);
+		});
+	}
+);
 
 module.exports = router;

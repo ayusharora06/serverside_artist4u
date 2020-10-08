@@ -31,6 +31,7 @@ const uploadprofile = multer({
 
 router.patch(
 	'/addpartner/profile/:userid',
+	checkAuth,
 	uploadprofile.single('profile'),
 	async (req,res)=>{
 		// console.log(req.file);
