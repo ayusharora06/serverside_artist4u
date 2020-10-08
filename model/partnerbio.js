@@ -19,8 +19,8 @@ const partnerbioSchema = mongo.Schema({
 	agreed:String,
 });
 
-const myDB = mongo.connection.useDb('parter');
+const myDB = mongo.connection.useDb('partner');
 
-const partner = myDB.model('parterbio',partnerbioSchema);
+const partner = myDB.model('partnerbio',partnerbioSchema);
 
 module.exports=partner;

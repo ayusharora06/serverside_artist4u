@@ -7,6 +7,42 @@ const userschema = require('../../model/user');
 const partnerschema = require('../../model/partnerbio');
 const checkAuth = require('../../middleware/check-auth');
 
+
+const storageprofile = multer.diskStorage({
+	destination:function(req, file, cb){
+		const userid = req.params.userid;
+    		const path = `./partner/${userid}`;
+		fs.mkdirSync(path, { recursive: true });
+		return cb(null, path);
+	},
+	filename:function(req, file, cb){
+		cb(null, file.originalname);
+	}
+});
+
+const uploadprofile = multer({
+	// dest: './artisttype/',
+	storage:storageprofile,
+	limits:{
+		fieldSize:1024 * 1024 * 30
+	},
+	// fileFilter:fileFilter
+});
+
+router.patch(
+	'/addpartner/profile/:userid',
+	uploadprofile.single('profile'),
+	async (req,res)=>{
+		// console.log(req.file);
+		await partnerschema.findOneAndUpdate({userid:req.params.userid},{'profile':req.file}).exec().then(result=>{
+			// console.log(result);
+			res.status(200).json(result);
+		}).catch(err =>{
+			res.status(200).json(err);
+		});
+	}
+);
+
 router.post(
 	'/addpartner',
 	checkAuth,
