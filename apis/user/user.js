@@ -66,7 +66,7 @@ router.post(
 	'/updatephonenumber',
 	checkAuth,
 	async (req,res)=>{
-		await userschema.findByIdAndUpdate(req.data.id,{'phone':req.body.phone}).exec().then(result=>{
+		await userschema.findByIdAndUpdate(req.data.id,{'phone':req.body.phone,'otp':''}).exec().then(result=>{
 			// console.log(result);
 			if(req.body.otp==result['otp']){
 				res.status(200).json({message:'updated'});
@@ -83,7 +83,7 @@ router.post(
 	'/updateemail',
 	checkAuth,
 	async (req,res)=>{
-		await userschema.findByIdAndUpdate(req.data.id,{'email':req.body.email}).exec().then(result=>{
+		await userschema.findByIdAndUpdate(req.data.id,{'email':req.body.email,'otp':''}).exec().then(result=>{
 			// console.log(result);
 			if(req.body.otp==result['otp']){
 				res.status(200).json({message:'updated'});
@@ -100,7 +100,7 @@ router.post(
 	'/updatename',
 	checkAuth,
 	async (req,res)=>{
-		await userschema.findByIdAndUpdate(req.data.id,{'name':req.body.name}).exec().then(result=>{
+		await userschema.findByIdAndUpdate(req.data.id,{'name':req.body.name,'otp':''}).exec().then(result=>{
 			// console.log(result);
 			if(req.body.otp==result['otp']){
 				res.status(200).json({message:'updated'});
