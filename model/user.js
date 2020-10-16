@@ -3,11 +3,13 @@ const mongo = require('mongoose');
 const user = mongo.Schema({
 	_id:mongo.Schema.Types.ObjectId,
 	name:String,
+	artistid:String,
+	partnerid:String,
 	email:{type:String, unique:true,required:true},
 	phone:{type:String, unique:true,required:true},
 	ispartner:{type:Boolean,default:false},
 	isartist:{type:Boolean,default:false},
-	otp:{type:String,required:true},
+	otp:{type:String,},
 });
 
 const myDB = mongo.connection.useDb('user');//db name

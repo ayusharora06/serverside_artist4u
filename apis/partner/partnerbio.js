@@ -11,7 +11,7 @@ const checkAuth = require('../../middleware/check-auth');
 const storageprofile = multer.diskStorage({
 	destination:function(req, file, cb){
 		const userid = req.params.userid;
-    		const path = `./partner/${userid}`;
+    		const path = `./partner/${userid}/profile`;
 		fs.mkdirSync(path, { recursive: true });
 		return cb(null, path);
 	},
@@ -29,18 +29,66 @@ const uploadprofile = multer({
 	// fileFilter:fileFilter
 });
 
+const storageproof = multer.diskStorage({
+	destination:function(req, file, cb){
+		const userid = req.params.userid;
+    		const path = `./partner/${userid}/proof`;
+		fs.mkdirSync(path, { recursive: true });
+		return cb(null, path);
+	},
+	filename:function(req, file, cb){
+		cb(null, file.originalname);
+	}
+});
+
+const uploadproof = multer({
+	// dest: './artisttype/',
+	storage:storageproof,
+	limits:{
+		fieldSize:1024 * 1024 * 30
+	},
+	// fileFilter:fileFilter
+});
+
 router.patch(
 	'/addpartner/profile/:userid',
 	checkAuth,
 	uploadprofile.single('profile'),
 	async (req,res)=>{
-		// console.log(req.file);
-		await partnerschema.findOneAndUpdate({userid:req.params.userid},{'profile':req.file}).exec().then(result=>{
-			// console.log(result);
-			res.status(200).json(result);
-		}).catch(err =>{
-			res.status(200).json(err);
-		});
+		if(req.file){
+			// console.log(req.file);
+			await partnerschema.findOneAndUpdate({userid:req.params.userid},{'profile':req.file}).exec().then(result=>{
+				// console.log(result);
+				res.status(200).json({message:'profile added'});
+			}).catch(err =>{
+				res.status(400).json({message:err});
+			});
+		}
+		else{
+			res.status(200).json({message:'file not found'});
+		}
+	}
+);
+
+router.patch(
+	'/addpartner/idproof/:userid',
+	checkAuth,
+	uploadproof.single('idproof'),
+	async (req,res)=>{
+		console.log(req);
+		if(req.file){
+			// console.log(req.file);
+			await partnerschema.findOneAndUpdate({userid:req.params.userid},{'idproof':req.file}).exec().then(result=>{
+				// console.log(result);
+				res.status(200).json({message:'Id proof added'});
+			}).catch(err =>{
+				res.status(400).json({message:err});
+			});
+
+		}else{
+			res.status(200).json({message:'file not found'});
+		}
+		
 	}
 );
 
@@ -48,6 +96,7 @@ router.post(
 	'/addpartner',
 	checkAuth,
 	async (req,res)=>{
+		// console.log(req)
 		const partner = new partnerschema({
 			_id: new mongo.Types.ObjectId,
 			userid:req.data.id,
@@ -66,11 +115,13 @@ router.post(
 			agreed:req.body.agreed,
 		});
 		partner.save().then(result=>{
-			const user=userschema.findOneAndUpdate({_id:req.data.id},{ispartner:true},function(err,res){});
-			// console.log(result);
-			res.status(201).json({
-				message:"partner added"
+			const user=userschema.findOneAndUpdate({_id:req.data.id},{ispartner:true},function(err,result){
+				res.status(201).json({
+					message:"partner added",
+					partnerid:result._id
+				});
 			});
+			// console.log(result);
 		}).catch(err =>{
 			res.status(500).json({err:err});
 		});

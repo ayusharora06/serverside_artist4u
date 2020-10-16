@@ -5,6 +5,7 @@ const partnerbioSchema = mongo.Schema({
 	userid:{type:String, unique:true,required:true},
 	name:String,
 	profile:Object,
+	idproof:Object,
 	phonenumber:{type:String, unique:true,required:true},
 	email:{type:String, unique:true,required:true},
 	website:{type:String, unique:true},

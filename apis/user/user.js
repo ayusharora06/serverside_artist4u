@@ -71,7 +71,7 @@ router.post(
 			if(req.body.otp==result['otp']){
 				res.status(200).json({message:'updated'});
 			}else{
-				res.status(400).json({message:"invalid otp"});
+				res.status(401).json({message:"invalid otp"});
 			}
 		}).catch(err =>{
 			res.status(200).json(err);
@@ -88,7 +88,7 @@ router.post(
 			if(req.body.otp==result['otp']){
 				res.status(200).json({message:'updated'});
 			}else{
-				res.status(400).json({message:"invalid otp"});
+				res.status(401).json({message:"invalid otp"});
 			}
 		}).catch(err =>{
 			res.status(200).json(err);
@@ -105,7 +105,7 @@ router.post(
 			if(req.body.otp==result['otp']){
 				res.status(200).json({message:'updated'});
 			}else{
-				res.status(400).json({message:"invalid otp"});
+				res.status(401).json({message:"invalid otp"});
 			}
 		}).catch(err =>{
 			res.status(200).json(err);
@@ -124,11 +124,12 @@ router.post(
 	checkAuth,
 	async (req,res)=>{
 		const otp=generateotp();
+		console.log(otp);
 		await userschema.findByIdAndUpdate(req.data.id,{'otp':otp}).exec().then(result=>{
 			// console.log(result);
-			res.status(200).json({message:'otp added'});
+			res.status(200).json({message:'otp added',otp:otp});
 		}).catch(err =>{
-			res.status(200).json(err);
+			res.status(400).json(err);
 		});
 	}
 );
