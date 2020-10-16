@@ -10,6 +10,7 @@ const user = mongo.Schema({
 	ispartner:{type:Boolean,default:false},
 	isartist:{type:Boolean,default:false},
 	otp:{type:String,},
+	mybookings:[Object]
 });
 
 const myDB = mongo.connection.useDb('user');//db name

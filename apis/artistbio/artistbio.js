@@ -139,7 +139,7 @@ router.get(
 				console.log(err);
 			});
 		}else{
-			res.status(200).send('artist type not found');
+			res.status(400).send('artist type not found');
 		}
 	}
 );

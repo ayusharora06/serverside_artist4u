@@ -35,6 +35,7 @@ const artistbioSchema = mongo.Schema({
 	//bank detail
 	recommended:String,
 	peopleschoice:String,
+	mybookings:[Object],
 });
 
 const myDB = mongo.connection.useDb('artistBio');
