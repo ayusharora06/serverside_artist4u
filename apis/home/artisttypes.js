@@ -50,7 +50,7 @@ router.get('/',(req,res,next) => {
 	});
 });
 
-router.post('/add_artistType',checkAuth,upload.single('Image'),(req,res) => {
+router.post('/add_artistType',upload.single('Image'),(req,res) => {
 	console.log(req.file);
 	const bio = artistType({
 		_id: new mongo.Types.ObjectId,
