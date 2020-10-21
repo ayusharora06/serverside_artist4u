@@ -2,7 +2,7 @@ const mongo = require('mongoose');
 
 const artistbioSchema = mongo.Schema({
 	_id:mongo.Schema.Types.ObjectId,
-	// userid:{type:String, unique:true,required:true},
+	userid:{type:String, unique:false,required:true},
 	name:String,
 	profile:Object,
 	artist_type:String,

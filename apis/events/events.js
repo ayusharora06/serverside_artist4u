@@ -75,8 +75,12 @@ router.get('/completed',checkAuth,(req,res)=>{
 					// console.log(user.mybookings[i])
 					completed.push(user.mybookings[i]);
 				}
-			} 
-			res.status(200).json({result:completed});
+			}
+			// if (user.isartist==true){
+			// 	// artisttype.findOne({_id:req.data.id}).exec().then((result)=>{console.log(result)})
+			// 	console.log(user.isartist)
+			// }
+			res.status(200).json(completed);
 		}
 	).catch();
 })
@@ -92,7 +96,31 @@ router.get('/cancelled',checkAuth,(req,res)=>{
 					cancelled.push(user.mybookings[i]);
 				}
 			} 
-			res.status(200).json({result:cancelled});
+			res.status(200).json(cancelled);
+		}
+	).catch();
+})
+
+router.get('/artist/upcoming',checkAuth,(req,res)=>{
+	var upcoming=[];
+	user.findOne({_id:req.data.id,}).exec()
+	.then(
+		(user)=>{
+			if(user['isartist']==true){
+				artisttype[user['artisttype']].findById(user['artistid']).exec()
+				.then((artist)=>{
+					console.log(artist)
+					for(var i =0;i<artist.mybookings.length;i++){
+						if(artist.mybookings[i]['status']=='upcoming'){
+							// console.log(user.mybookings[i])
+							upcoming.push(artist.mybookings[i]);
+						}
+					} 
+					res.status(200).json({result:upcoming});
+				})
+				.catch()
+					
+			}
 		}
 	).catch();
 })

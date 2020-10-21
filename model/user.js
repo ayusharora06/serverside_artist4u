@@ -4,6 +4,7 @@ const user = mongo.Schema({
 	_id:mongo.Schema.Types.ObjectId,
 	name:String,
 	artistid:String,
+	artisttype:String,
 	partnerid:String,
 	email:{type:String, unique:true,required:true},
 	phone:{type:String, unique:true,required:true},

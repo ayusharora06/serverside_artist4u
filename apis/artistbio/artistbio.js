@@ -5,6 +5,7 @@ const multer = require('multer');
 const fs = require('fs');
 const artisttype = require('../../model/artistbio');
 const checkAuth = require('../../middleware/check-auth');
+const user = require('../../model/user');
 
 
 const storageidproof = multer.diskStorage({
@@ -168,6 +169,7 @@ router.post('/add_artistbio/:artist_type',(req,res) => {
 		const bio = new artisttype[req.body.artist_type]({
 
 			_id: new mongo.Types.ObjectId,
+			userid:req.body.userid,
 			name:req.body.name,
 			//profile:req.files.profile[0],
 			artist_type:req.body.artist_type,
@@ -202,6 +204,13 @@ router.post('/add_artistbio/:artist_type',(req,res) => {
 		});
 		bio.save().then(result =>{
 			console.log(result);
+			user.findByIdAndUpdate(req.body.userid,
+				{
+					artistid:result['_id'],
+					isartist:true,
+					artisttype:result['artist_type']
+				},function(req,res,err){}
+			)
 		}).catch(err => {
 			console.log(err);
 		});
