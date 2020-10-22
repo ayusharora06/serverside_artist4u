@@ -10,9 +10,11 @@ const { json } = require('body-parser');
 router.post('/signup',async (req,res,next)=>{
 	const user = await new userschema({
 		_id: new mongo.Types.ObjectId,
+		name:req.body.name,
 		email:req.body.email,
 		phone:req.body.phone,
 	});
+	console.log(req.body);
 	user.save().then(result=>{
 		console.log('done')
 		const token=jwt.sign({
@@ -25,10 +27,11 @@ router.post('/signup',async (req,res,next)=>{
 			expiresIn:"4h"
 		}
 		);
-		console.log(token);
+		// console.log(token);
 		res.status(201).json({
 			message:"authenticated",
-			token:token
+			token:token,
+			detail:result
 		});
 	}).catch(err =>{
 		res.status(500).json({err:err});
@@ -54,7 +57,14 @@ router.post('/login/email',async(req,res,next)=>{
 			expiresIn:"4h"
 		}
 		);
-		res.status(200).json({token:token});
+		res.status(200).json(
+			{
+				message:"authenticated",
+				token:token,
+				detail:users[0]
+
+			}
+		);
 
 	})
 	.catch(err=>{
@@ -120,18 +130,46 @@ function generateotp() {
 }
 
 router.post(
-	'/otp',
+	'/otp/update',
 	checkAuth,
 	async (req,res)=>{
 		const otp=generateotp();
-		console.log(otp);
+		// console.log(otp);
 		await userschema.findByIdAndUpdate(req.data.id,{'otp':otp}).exec().then(result=>{
 			// console.log(result);
-			res.status(200).json({message:'otp added',otp:otp});
+			res.status(200).json({message:'otp added'});
 		}).catch(err =>{
 			res.status(400).json(err);
 		});
 	}
 );
 
+
+router.post(
+	'/otp/login/email',
+	async (req,res)=>{
+		const otp=generateotp();
+		// console.log(otp);
+		await userschema.findOneAndUpdate({email:req.body.email},{'otp':otp}).exec().then(result=>{
+			console.log(result);
+			res.status(200).json({message:'otp added'});
+		}).catch(err =>{
+			res.status(400).json(err);
+		});
+	}
+);
+
+router.post(
+	'/otp/login/phone',
+	async (req,res)=>{
+		const otp=generateotp();
+		// console.log(otp);
+		await userschema.findOneAndUpdate({phone:req.body.phone},{'otp':otp}).exec().then(result=>{
+			console.log(result);
+			res.status(200).json({message:'otp added'});
+		}).catch(err =>{
+			res.status(400).json(err);
+		});
+	}
+);
 module.exports = router;
