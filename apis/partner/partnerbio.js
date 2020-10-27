@@ -5,7 +5,9 @@ const multer = require('multer');
 const fs = require('fs');
 const userschema = require('../../model/user');
 const partnerschema = require('../../model/partnerbio');
+const referschema=require('../../model/refercode');
 const checkAuth = require('../../middleware/check-auth');
+const refercode = require('../../model/refercode');
 
 
 const storageprofile = multer.diskStorage({
@@ -138,4 +140,44 @@ router.get('/getartist',(req,res,next) => {
 	// console.log('done');
 });
 
+function generaterefercode() {  
+	return Math.floor(
+		Math.random() * (999999 - 100000) + 100000
+	)
+}
+
+function generateuniqueid() {
+	var result           = '';
+	var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	var charactersLength = characters.length;
+	for ( var i = 0; i < 7; i++ ) {
+	   result += characters.charAt(Math.floor(Math.random() * charactersLength));
+	}
+	return result;
+   }
+
+router.post('/generaterefercode',async(req,res)=>{
+	var refercode=generaterefercode();
+	const refer = new referschema({
+		_id: new mongo.Types.ObjectId,
+		uniqueid:generateuniqueid(),
+		partnerid:req.body.partnerid,
+		refercode:refercode
+	});
+	await refer.save().then((result)=>{
+		res.json(result);
+	});
+});
+
+router.post('/verifyrefercode',async(req,res)=>{
+	referschema.findOne({uniqueid:req.body.uniqueid}).exec().then((result)=>{
+		if(result["refercode"]==req.body.refercode){
+			res.status(200).json({message:"done"});
+		}else{
+			res.status(400).json({message:"invalid"});
+		}
+	}).catch((err)=>{
+		res.status(401).json({message:"expired or not generated"});
+	});
+});
  module.exports=router

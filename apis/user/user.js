@@ -27,7 +27,7 @@ router.post('/signup',async (req,res,next)=>{
 			expiresIn:"4h"
 		}
 		);
-		// console.log(token);
+		console.log(result);
 		res.status(201).json({
 			message:"authenticated",
 			token:token,
@@ -49,6 +49,7 @@ router.post('/login/email',async(req,res,next)=>{
 		}
 		const token=jwt.sign({
 			email:users[0].email,
+			phone:users[0].phone,
 			id:users[0]._id,
 			phone:users[0].phone
 		},
@@ -57,7 +58,42 @@ router.post('/login/email',async(req,res,next)=>{
 			expiresIn:"4h"
 		}
 		);
-		res.status(200).json(
+		res.status(201).json(
+			{
+				message:"authenticated",
+				token:token,
+				detail:users[0]
+
+			}
+		);
+
+	})
+	.catch(err=>{
+			res.status(500).json({err:err});
+	});
+});
+
+router.post('/login/phone',async(req,res,next)=>{
+	await userschema.find({phone:req.body.phone})
+	.exec()
+	.then(users=>{
+		if(users.length<1){
+			res.status(404).json({
+				message:"phone not found"
+			});
+		}
+		const token=jwt.sign({
+			email:users[0].email,
+			phone:users[0].phone,
+			id:users[0]._id,
+			phone:users[0].phone
+		},
+		'key',
+		{
+			expiresIn:"4h"
+		}
+		);
+		res.status(201).json(
 			{
 				message:"authenticated",
 				token:token,
@@ -158,6 +194,7 @@ router.post(
 		});
 	}
 );
+
 
 router.post(
 	'/otp/login/phone',
