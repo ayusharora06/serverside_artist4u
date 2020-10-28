@@ -2,13 +2,12 @@ const mongo = require('mongoose');
 
 const refercodeSchema = mongo.Schema({
 	_id:mongo.Schema.Types.ObjectId,
-	refercode:String,
+	refercode:{type:String,unique:true},
 	partnerid:String,
-	uniqueid:{type:String,unique:true},
 	createAt: {
 		type: Date,
 		default: Date.now(),
-		index: { expires: 60}
+		index: { expires: 60*5}
 	}
 });
 

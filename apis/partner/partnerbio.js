@@ -146,31 +146,21 @@ function generaterefercode() {
 	)
 }
 
-function generateuniqueid() {
-	var result           = '';
-	var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	var charactersLength = characters.length;
-	for ( var i = 0; i < 7; i++ ) {
-	   result += characters.charAt(Math.floor(Math.random() * charactersLength));
-	}
-	return result;
-   }
-
-router.post('/generaterefercode',async(req,res)=>{
+router.post('/generaterefercode',checkAuth,async(req,res)=>{
 	var refercode=generaterefercode();
 	const refer = new referschema({
 		_id: new mongo.Types.ObjectId,
-		uniqueid:generateuniqueid(),
 		partnerid:req.body.partnerid,
 		refercode:refercode
 	});
 	await refer.save().then((result)=>{
-		res.json(result);
-	});
+		console.log(result)
+		res.status(200).json(result);
+	}).catch((err)=>{res.status(400).json({message:'error'})});
 });
 
 router.post('/verifyrefercode',async(req,res)=>{
-	referschema.findOne({uniqueid:req.body.uniqueid}).exec().then((result)=>{
+	referschema.findOne({partnerid:req.body.partnerid}).exec().then((result)=>{
 		if(result["refercode"]==req.body.refercode){
 			res.status(200).json({message:"done"});
 		}else{
