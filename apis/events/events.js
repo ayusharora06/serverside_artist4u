@@ -21,6 +21,9 @@ router.post('/addevent',checkAuth,(req,res) => {
 		"requiements":req.body.requiements,
 		"status":"upcoming",
 		"price":req.body.price,
+		"refercode":req.body.refercode,
+		"cancelledby":null,
+		"artistcompensation":null,
 	}
 	if(req.body.artisttype in artisttype){
 		artisttype[req.body.artisttype].findByIdAndUpdate(

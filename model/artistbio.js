@@ -36,6 +36,7 @@ const artistbioSchema = mongo.Schema({
 	recommended:String,
 	peopleschoice:String,
 	mybookings:[Object],
+	leaderboard:{type:Number,default:0}
 });
 
 const myDB = mongo.connection.useDb('artistBio');
