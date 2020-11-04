@@ -6,11 +6,17 @@ const user = require('../../model/user');
 const artisttype = require('../../model/artistbio');
 
 
+function generatebookingid() {  
+	return Math.floor(
+		Math.random() * (999999999999 - 100000000000) + 100000000000
+	)
+}
 router.post('/addevent',checkAuth,(req,res) => {
 	// console.log(req.body);
 	var event={
 		"artistid":req.body.artistid,
 		"userid":req.body.userid,
+		"bookingid":generatebookingid(),
 		"artistname":req.body.artistname,
 		"username":req.body.username,
 		"artisttype:":req.body.artisttype,
@@ -126,6 +132,138 @@ router.get('/artist/upcoming',checkAuth,(req,res)=>{
 			}
 		}
 	).catch();
+})
+
+router.post('/cancelevent/user',checkAuth,(req,res)=>{
+	user.findOne({_id:req.data.id,}).exec()
+	.then(
+		(result)=>{
+			var found=0;
+			//console.log(result['mybookings'].length)
+			for(var i =0;i<result['mybookings'].length;i++){
+				if(result['mybookings'][i]['bookingid']==req.body.bookingid){
+					// console.log(result['mybookings'][i])
+					found=1;
+					var afound=0;
+					result['mybookings'][i]['status']='cancelled';
+					result['mybookings'][i].cancelledby='user';
+					result['mybookings'][i].artistcompensation=10;
+					user.update(result,function(err,num,res){}).catch((err)=>{})
+					// res.status(200).json({message:'done'});
+					artisttype[result['artisttype']].findById(result['artistid']).then((artist)=>{
+						for(var i =0;i<artist['mybookings'].length;i++){
+							if(artist['mybookings'][i]['bookingid']==req.body.bookingid){
+								afound=1;
+								artist['mybookings'][i].status="cancelled";
+								artist['mybookings'][i].cancelledby='user';
+								artist['mybookings'][i].artistcompensation=10;
+								console.log(artist['mybookings'][i])
+								artisttype[result['artisttype']].update(artist,function(err,num,res){}).catch((err)=>{})
+								res.status(200).json({message:'done'});
+							}
+						}
+						if(afound==0){
+							res.status(400).json({message:'invalid booking id for artsit'});
+						}
+					}
+					).catch((err)=>{
+						res.status(400).json({message:'invalid artist id'});
+					});
+					// res.status(200).json(result['mybookings'][i]);
+				}
+			}
+			if(found==0){
+				res.status(400).json({message:'invalid booking id for user'});
+			}
+		}
+	).catch();
+	// user.findById(req.user.id,function(err,data){
+	// 	if(err){
+	// 	  return err
+	// 	}else{
+	// 	  user.update(
+	// 	    {_id: req.user.id}, {
+	// 		contact:req.body.contact,
+	// 		first_name:req.body.first_name,
+	// 		last_name:req.body.last_name,
+	// 	    },function(err,num,res){
+	// 		// console.log(err)
+	// 		// console.log(num)
+	// 		// console.log(res)
+	// 	    }
+	// 	  );
+	// 	  res.status(200).json({
+	// 	    message:'hope you learn something new',
+	// 	    // credits:user.credits
+	// 	  });
+	// 	}
+	//     });
+})
+
+router.post('/cancelevent/artist',checkAuth,(req,res)=>{
+	user.findOne({_id:req.data.id,}).exec()
+	.then(
+		(result)=>{
+			var found=0;
+			//console.log(result['mybookings'].length)
+			for(var i =0;i<result['mybookings'].length;i++){
+				if(result['mybookings'][i]['bookingid']==req.body.bookingid){
+					// console.log(result['mybookings'][i])
+					found=1;
+					var afound=0;
+					result['mybookings'][i]['status']='cancelled';
+					result['mybookings'][i].cancelledby='artist';
+					result['mybookings'][i].artistcompensation=0;
+					user.update(result,function(err,num,res){}).catch((err)=>{})
+					// res.status(200).json({message:'done'});
+					artisttype[result['artisttype']].findById(result['artistid']).then((artist)=>{
+						for(var i =0;i<artist['mybookings'].length;i++){
+							if(artist['mybookings'][i]['bookingid']==req.body.bookingid){
+								afound=1;
+								artist['mybookings'][i].status="cancelled";
+								artist['mybookings'][i].cancelledby='artist';
+								artist['mybookings'][i].artistcompensation=0;
+								console.log(artist['mybookings'][i])
+								artisttype[result['artisttype']].update(artist,function(err,num,res){}).catch((err)=>{})
+								res.status(200).json({message:'done'});
+							}
+						}
+						if(afound==0){
+							res.status(400).json({message:'invalid booking id for artsit'});
+						}
+					}
+					).catch((err)=>{
+						res.status(400).json({message:'invalid artist id'});
+					});
+					// res.status(200).json(result['mybookings'][i]);
+				}
+			}
+			if(found==0){
+				res.status(400).json({message:'invalid booking id for user'});
+			}
+		}
+	).catch();
+	// user.findById(req.user.id,function(err,data){
+	// 	if(err){
+	// 	  return err
+	// 	}else{
+	// 	  user.update(
+	// 	    {_id: req.user.id}, {
+	// 		contact:req.body.contact,
+	// 		first_name:req.body.first_name,
+	// 		last_name:req.body.last_name,
+	// 	    },function(err,num,res){
+	// 		// console.log(err)
+	// 		// console.log(num)
+	// 		// console.log(res)
+	// 	    }
+	// 	  );
+	// 	  res.status(200).json({
+	// 	    message:'hope you learn something new',
+	// 	    // credits:user.credits
+	// 	  });
+	// 	}
+	//     });
 })
 
 module.exports=router;
