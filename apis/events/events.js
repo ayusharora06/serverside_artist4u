@@ -4,6 +4,7 @@ const mongo = require('mongoose');
 const checkAuth = require('../../middleware/check-auth');
 const user = require('../../model/user');
 const artisttype = require('../../model/artistbio');
+const partner = require('../../model/partnerbio');
 
 
 function generatebookingid() {  
@@ -12,6 +13,7 @@ function generatebookingid() {
 	)
 }
 router.post('/addevent',checkAuth,(req,res) => {
+	//add referby and partnerid field
 	// console.log(req.body);
 	var event={
 		"artistid":req.body.artistid,
@@ -31,31 +33,45 @@ router.post('/addevent',checkAuth,(req,res) => {
 		"cancelledby":null,
 		"artistcompensation":null,
 	}
+	user.findByIdAndUpdate(
+		req.body.userid,
+		{
+			$push:{mybookings:event}
+		},
+		// function(req,res,err){}
+	)
+	.exec()
+	.catch(err =>{
+		console.log(err);
+	});
+	if(req.body.referby=='partner'){
+		partner.findByIdAndUpdate(
+			req.body.partnerid,
+			{
+				$push:{mybookings:event}	
+			},
+			// function(req,res,err){}
+		).exec().catch(err =>{
+			console.log(err);
+		});
+	}
 	if(req.body.artisttype in artisttype){
 		artisttype[req.body.artisttype].findByIdAndUpdate(
 			req.body.artistid,
 			{
 				$push:{mybookings:event}
 			},
+			// function(req,res,err){}
 		)
 		.exec()
 		.catch(err =>{
 			console.log(err);
 		});
-		user.findByIdAndUpdate(
-			req.body.userid,
-			{
-				$push:{mybookings:event}
-			}
-		)
-		.exec()
-		.catch(err =>{
-			console.log(err);
-	});
 	res.status(200).json({message:"done"});
 	}else{
 		res.status(400).json({message:"artist type not found"});
 	}
+	
 });
 
 router.get('/upcoming',checkAuth,(req,res)=>{
@@ -205,7 +221,7 @@ router.post('/cancelevent/artist',checkAuth,(req,res)=>{
 	.then(
 		(result)=>{
 			var found=0;
-			//console.log(result['mybookings'].length)
+			// console.log(result['mybookings'].length)
 			for(var i =0;i<result['mybookings'].length;i++){
 				if(result['mybookings'][i]['bookingid']==req.body.bookingid){
 					// console.log(result['mybookings'][i])
@@ -223,26 +239,55 @@ router.post('/cancelevent/artist',checkAuth,(req,res)=>{
 								artist['mybookings'][i].status="cancelled";
 								artist['mybookings'][i].cancelledby='artist';
 								artist['mybookings'][i].artistcompensation=0;
-								console.log(artist['mybookings'][i])
-								artisttype[result['artisttype']].update(artist,function(err,num,res){}).catch((err)=>{})
+								// console.log(artist['mybookings'][i])
+								artisttype[result['artisttype']].update(artist,function(err,num,res){}).catch((err)=>{
+									console.log(err)
+									res.status(400).json({message:'invalid artist id'});
+								})
+								// res.status(200).json({message:'done'});
+							}
+						}
+						// if(afound==0){
+						// 	res.status(400).json({message:'invalid booking id for artsit'});
+						// }
+					}
+					).catch((err)=>{
+						console.log(err)
+						res.status(400).json({message:'invalid artist id'});
+					});
+					partner.findById(result['partnerid']).then((Partner)=>{
+						for(var i =0;i<Partner['mybookings'].length;i++){
+							if(Partner['mybookings'][i]['bookingid']==req.body.bookingid){
+								afound=1;
+								Partner['mybookings'][i].status="cancelled";
+								Partner['mybookings'][i].cancelledby='artist';
+								Partner['mybookings'][i].artistcompensation=0;
+								console.log(Partner['mybookings'][i])
+								partner.update(Partner,function(err,num,res){}).catch((err)=>{})
 								res.status(200).json({message:'done'});
 							}
 						}
-						if(afound==0){
-							res.status(400).json({message:'invalid booking id for artsit'});
-						}
+						// if(afound==0){
+						// 	res.status(400).json({message:'invalid booking id for artsit'});
+						// }
 					}
 					).catch((err)=>{
+						console.log(err)
 						res.status(400).json({message:'invalid artist id'});
 					});
-					// res.status(200).json(result['mybookings'][i]);
+					res.status(200).json(result['mybookings'][i]);
 				}
 			}
 			if(found==0){
 				res.status(400).json({message:'invalid booking id for user'});
 			}
 		}
-	).catch();
+	).catch((err)=>{
+		console.log(err)
+		res.status(400).json({message:'invalid artist id'});
+	}
+
+	);
 	// user.findById(req.user.id,function(err,data){
 	// 	if(err){
 	// 	  return err

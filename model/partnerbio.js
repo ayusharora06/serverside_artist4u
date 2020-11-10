@@ -18,6 +18,7 @@ const partnerbioSchema = mongo.Schema({
 	accountnumber:String,
 	IFSC:String,
 	agreed:String,
+	mybookings:[Object],
 	// refercode:{type:String,index: { expires: '1m' },}
 });
 

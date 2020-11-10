@@ -4,6 +4,9 @@ const refercodeSchema = mongo.Schema({
 	_id:mongo.Schema.Types.ObjectId,
 	refercode:{type:String,unique:true},
 	partnerid:String,
+	isartist:Boolean,
+	artisttype:String,
+	artistid:String,
 	createAt: {
 		type: Date,
 		default: Date.now(),

@@ -8,6 +8,7 @@ const partnerschema = require('../../model/partnerbio');
 const referschema=require('../../model/refercode');
 const checkAuth = require('../../middleware/check-auth');
 const refercode = require('../../model/refercode');
+const artisttype = require('../../model/artistbio');
 
 
 const storageprofile = multer.diskStorage({
@@ -117,7 +118,7 @@ router.post(
 			agreed:req.body.agreed,
 		});
 		partner.save().then(result=>{
-			const user=userschema.findOneAndUpdate({_id:req.data.id},{ispartner:true},function(err,result){
+			const user=userschema.findOneAndUpdate({_id:req.data.id},{ispartner:true,partnerid:result._id},function(err,result){
 				res.status(201).json({
 					message:"partner added",
 					partnerid:result._id
@@ -125,6 +126,7 @@ router.post(
 			});
 			// console.log(result);
 		}).catch(err =>{
+			console.log(err);
 			res.status(500).json({err:err});
 		});
 	}
@@ -151,23 +153,33 @@ router.post('/generaterefercode',checkAuth,async(req,res)=>{
 	const refer = new referschema({
 		_id: new mongo.Types.ObjectId,
 		partnerid:req.body.partnerid,
+		isartist:req.body.isartist,
+		artisttype:req.body.artisttype,
+		artistid:req.body.artistid,
 		refercode:refercode
 	});
 	await refer.save().then((result)=>{
-		console.log(result)
+		// console.log(result)
 		res.status(200).json(result);
 	}).catch((err)=>{res.status(400).json({message:'error'})});
 });
 
-router.post('/verifyrefercode',async(req,res)=>{
-	referschema.findOne({partnerid:req.body.partnerid}).exec().then((result)=>{
-		if(result["refercode"]==req.body.refercode){
-			res.status(200).json({message:"done"});
+router.post('/verifyrefercode',checkAuth,async(req,res)=>{
+	// console.log(req.body.refercode)
+	referschema.findOne({refercode:req.body.refercode}).exec().then((result)=>{
+		if(result["isartist"]==true){
+			// console.log('in')
+			artisttype[result.artisttype].findById(result['artistid']).then((artist)=>{
+				// console.log('inside')
+				res.status(200).json({message:"done from artist",artistid:result["artistid"]});
+			}).catch((err)=>{
+				res.status(400).json({message:"artist not found"});	
+			});
 		}else{
-			res.status(400).json({message:"invalid"});
+			res.status(201).json({message:"done from partner",partnerid:result["partnerid"]});
 		}
 	}).catch((err)=>{
-		res.status(401).json({message:"expired or not generated"});
+		res.status(401).json({message:err});
 	});
 });
  module.exports=router
