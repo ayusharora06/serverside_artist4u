@@ -170,13 +170,18 @@ router.post('/verifyrefercode',checkAuth,async(req,res)=>{
 		if(result["isartist"]==true){
 			// console.log('in')
 			artisttype[result.artisttype].findById(result['artistid']).then((artist)=>{
-				// console.log('inside')
-				res.status(200).json({message:"done from artist",artistid:result["artistid"]});
+				// console.log(artist)
+				res.status(200).json({message:"done from artist",partnerid:null,artistid:result["artistid"],name:artist['name']});
 			}).catch((err)=>{
 				res.status(400).json({message:"artist not found"});	
 			});
 		}else{
-			res.status(201).json({message:"done from partner",partnerid:result["partnerid"]});
+			partnerschema.findById(result['partnerid']).then((Partner)=>{
+				// console.log(Partner)
+				res.status(200).json({message:"done from partner",artistid:null,partnerid:result["partnerid"],name:Partner['name']});
+			}).catch((err)=>{
+				res.status(400).json({message:"partner not found"});	
+			});
 		}
 	}).catch((err)=>{
 		res.status(401).json({message:err});
