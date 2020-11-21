@@ -30,8 +30,12 @@ router.post('/addevent',checkAuth,(req,res) => {
 		"status":"upcoming",
 		"price":req.body.price,
 		"refercode":req.body.refercode,
-		"cancelledby":null,
-		"artistcompensation":null,
+		"cancelledby":"null",
+		"artistcompensation":"null",
+		"cancelreason":"",
+		"cancelreasondescription":"",
+		"review":"",
+		"stars":"",
 	}
 	user.findByIdAndUpdate(
 		req.body.userid,
@@ -91,37 +95,33 @@ router.get('/upcoming',checkAuth,(req,res)=>{
 })
 
 router.get('/completed',checkAuth,(req,res)=>{
-	var completed=[];
+	var complete=[];
 	user.findOne({_id:req.data.id,}).exec()
 	.then(
 		(user)=>{
 			for(var i =0;i<user.mybookings.length;i++){
 				if(user.mybookings[i]['status']=='completed'){
 					// console.log(user.mybookings[i])
-					completed.push(user.mybookings[i]);
+					complete.push(user.mybookings[i]);
 				}
-			}
-			// if (user.isartist==true){
-			// 	// artisttype.findOne({_id:req.data.id}).exec().then((result)=>{console.log(result)})
-			// 	console.log(user.isartist)
-			// }
-			res.status(200).json(completed);
+			} 
+			res.status(200).json({result:complete});
 		}
 	).catch();
 })
 
 router.get('/cancelled',checkAuth,(req,res)=>{
-	var cancelled=[];
+	var cancel=[];
 	user.findOne({_id:req.data.id,}).exec()
 	.then(
 		(user)=>{
 			for(var i =0;i<user.mybookings.length;i++){
 				if(user.mybookings[i]['status']=='cancelled'){
 					// console.log(user.mybookings[i])
-					cancelled.push(user.mybookings[i]);
+					cancel.push(user.mybookings[i]);
 				}
 			} 
-			res.status(200).json(cancelled);
+			res.status(200).json({result:cancel});
 		}
 	).catch();
 })
