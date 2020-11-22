@@ -126,7 +126,7 @@ router.get('/cancelled',checkAuth,(req,res)=>{
 	).catch();
 })
 
-router.get('/artist/upcoming',checkAuth,(req,res)=>{
+router.get('/artist/booking',checkAuth,(req,res)=>{
 	var upcoming=[];
 	user.findOne({_id:req.data.id,}).exec()
 	.then(
@@ -136,10 +136,8 @@ router.get('/artist/upcoming',checkAuth,(req,res)=>{
 				.then((artist)=>{
 					console.log(artist)
 					for(var i =0;i<artist.mybookings.length;i++){
-						if(artist.mybookings[i]['status']=='upcoming'){
-							// console.log(user.mybookings[i])
-							upcoming.push(artist.mybookings[i]);
-						}
+						// console.log(user.mybookings[i])
+						upcoming.push(artist.mybookings[i]);
 					} 
 					res.status(200).json({result:upcoming});
 				})
