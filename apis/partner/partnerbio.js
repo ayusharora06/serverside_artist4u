@@ -165,7 +165,7 @@ router.post('/generaterefercode',checkAuth,async(req,res)=>{
 });
 
 router.post('/verifyrefercode',checkAuth,async(req,res)=>{
-	// console.log(req.body.refercode)
+	console.log(req.body)
 	referschema.findOne({refercode:req.body.refercode}).exec().then((result)=>{
 		if(result["isartist"]==true){
 			// console.log('in')

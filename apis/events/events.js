@@ -13,8 +13,8 @@ function generatebookingid() {
 	)
 }
 router.post('/addevent',checkAuth,(req,res) => {
-	//add referby and partnerid field
-	// console.log(req.body);
+	//add referedby and partnerid field
+	console.log(req.body);
 	var event={
 		"artistid":req.body.artistid,
 		"userid":req.body.userid,
@@ -36,6 +36,8 @@ router.post('/addevent',checkAuth,(req,res) => {
 		"cancelreasondescription":"",
 		"review":"",
 		"stars":"",
+		"referedby":req.body.referedby,
+		"partnerid":req.body.partnerid
 	}
 	user.findByIdAndUpdate(
 		req.body.userid,
@@ -48,7 +50,8 @@ router.post('/addevent',checkAuth,(req,res) => {
 	.catch(err =>{
 		console.log(err);
 	});
-	if(req.body.referby=='partner'){
+	if(req.body.referedby=='partner'){
+		// console.log('partner')
 		partner.findByIdAndUpdate(
 			req.body.partnerid,
 			{
@@ -138,6 +141,28 @@ router.get('/artist/booking',checkAuth,(req,res)=>{
 					for(var i =0;i<artist.mybookings.length;i++){
 						// console.log(user.mybookings[i])
 						upcoming.push(artist.mybookings[i]);
+					} 
+					res.status(200).json({result:upcoming});
+				})
+				.catch()
+					
+			}
+		}
+	).catch();
+})
+
+router.get('/partner/booking',checkAuth,(req,res)=>{
+	var upcoming=[];
+	user.findOne({_id:req.data.id,}).exec()
+	.then(
+		(user)=>{
+			if(user['ispartner']==true){
+				partner.findById(user['partnerid']).exec()
+				.then((Partner)=>{
+					console.log(Partner)
+					for(var i =0;i<Partner.mybookings.length;i++){
+						// console.log(user.mybookings[i])
+						upcoming.push(Partner.mybookings[i]);
 					} 
 					res.status(200).json({result:upcoming});
 				})
