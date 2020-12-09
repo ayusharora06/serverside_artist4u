@@ -2,7 +2,7 @@ const mongo = require('mongoose');
 
 const user = mongo.Schema({
 	_id:mongo.Schema.Types.ObjectId,//
-	name:String,//
+	name:{type:String,required:true},//
 	artistid:{type:String,default:""},
 	artisttype:{type:String,default:""},
 	partnerid:{type:String,default:""},

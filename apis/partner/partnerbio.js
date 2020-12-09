@@ -58,17 +58,18 @@ router.patch(
 	checkAuth,
 	uploadprofile.single('profile'),
 	async (req,res)=>{
+		// console.log(req.body)
 		if(req.file){
 			// console.log(req.file);
-			await partnerschema.findOneAndUpdate({userid:req.params.userid},{'profile':req.file}).exec().then(result=>{
-				// console.log(result);
+			await partnerschema.findByIdAndUpdate(req.params.userid,{'profile':req.file}).exec().then(result=>{
+				console.log(result);
 				res.status(200).json({message:'profile added'});
 			}).catch(err =>{
 				res.status(400).json({message:err});
 			});
 		}
 		else{
-			res.status(200).json({message:'file not found'});
+			res.status(400).json({message:'file not found'});
 		}
 	}
 );
@@ -78,18 +79,18 @@ router.patch(
 	checkAuth,
 	uploadproof.single('idproof'),
 	async (req,res)=>{
-		console.log(req);
+		// console.log(req);
 		if(req.file){
 			// console.log(req.file);
-			await partnerschema.findOneAndUpdate({userid:req.params.userid},{'idproof':req.file}).exec().then(result=>{
-				// console.log(result);
+			await partnerschema.findByIdAndUpdate(req.params.userid,{'idproof':req.file}).exec().then(result=>{
+				console.log(result);
 				res.status(200).json({message:'Id proof added'});
 			}).catch(err =>{
 				res.status(400).json({message:err});
 			});
 
 		}else{
-			res.status(200).json({message:'file not found'});
+			res.status(400).json({message:'file not found'});
 		}
 		
 	}
@@ -99,7 +100,7 @@ router.post(
 	'/addpartner',
 	checkAuth,
 	async (req,res)=>{
-		// console.log(req)
+		// console.log(req.body)
 		const partner = new partnerschema({
 			_id: new mongo.Types.ObjectId,
 			userid:req.data.id,
@@ -118,10 +119,11 @@ router.post(
 			agreed:req.body.agreed,
 		});
 		partner.save().then(result=>{
-			const user=userschema.findOneAndUpdate({_id:req.data.id},{ispartner:true,partnerid:result._id},function(err,result){
+			// console.log(result)
+			const user=userschema.findOneAndUpdate({_id:req.data.id},{ispartner:true,partnerid:result._id},function(err,resultuser){
 				res.status(201).json({
 					message:"partner added",
-					partnerid:result._id
+					partnerid:result['_id']
 				});
 			});
 			// console.log(result);

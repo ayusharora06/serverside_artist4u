@@ -163,9 +163,9 @@ router.patch(
 );
 
 router.post('/add_artistbio/:artist_type',(req,res) => {
-
+	console.log(req.body)
 	if(req.body.artist_type in artisttype){
-		// console.log(req.body.artist_type);
+		console.log(req.body);
 		const bio = new artisttype[req.body.artist_type]({
 
 			_id: new mongo.Types.ObjectId,
@@ -217,7 +217,7 @@ router.post('/add_artistbio/:artist_type',(req,res) => {
 
 		res.send(bio);
 	}else{
-		res.status(200).send('artist Type not found')
+		res.status(400).send('artist Type not found')
 	}
 });
 
